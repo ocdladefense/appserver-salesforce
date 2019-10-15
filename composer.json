@@ -1,0 +1,12 @@
+{
+    "name": "trevor-uehlin/salesforce",
+    "description": "A module designed to handle interactions with a Salesforce customer database.  Uses \"oAuth\" authentication.",
+    "type": "module",
+    "authors": [
+        {
+            "name": "Trevor Uehlin",
+            "email": "uehlin.trevor@gmail.com"
+        }
+    ],
+    "require": {}
+}
