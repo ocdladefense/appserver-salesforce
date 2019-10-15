@@ -8,5 +8,7 @@
             "email": "uehlin.trevor@gmail.com"
         }
     ],
-    "require": {}
+    "require": {
+        "composer/installers":"~1.0"
+    }
 }
