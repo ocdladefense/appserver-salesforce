@@ -1,5 +1,5 @@
 {
-    "name": "trevor-uehlin/salesforce",
+    "name": "trevor-uehlin/salesforce-module",
     "description": "A module designed to handle interactions with a Salesforce customer database.  Uses \"oAuth\" authentication.",
     "type": "wordpress-theme",
     "authors": [
