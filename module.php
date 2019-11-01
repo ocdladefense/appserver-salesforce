@@ -88,13 +88,17 @@ function getOauthTokenWithPassword()
 
 function getOauthToken($params)
 {
+    $username = $params["username"];
+
     $token_url = LOGIN_URI . "/services/oauth2/token";
     $request = new HTTPRequest($token_url);
     $request->setParams($params);
+
     $request->setPost();
     $response = $request->makeHTTPRequest();
     $phpResponse = $response->getPhpArray();
-    if(!empty($phpResponse['error'])) throw new exception($phpResponse['error_description']);
+
+    if(!empty($phpResponse['error'])) throw new exception($username."   ".$phpResponse['error_description']);
     return $response;
 }
 
