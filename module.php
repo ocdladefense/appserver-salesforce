@@ -97,6 +97,34 @@ function getOauthToken($params)
     if(!empty($phpResponse['error'])) throw new exception($phpResponse['error_description']);
     return $response;
 }
+//Get a salesforce database sObject by Id
+function getObjectById($objectType, $objectId) 
+{
+    $response = getOauthTokenWithPassword();
+    $instance_url = $response->getPhpArray()['instance_url'];
+    $access_token = $response->getPhpArray()['access_token'];
+
+    try{
+        $response = new stdClass();
+        $response->object = null;
+    
+        $url = "$instance_url/services/data/v20.0/sobjects/$objectType/$objectId";
+        $request = new HTTPRequest($url);
+        $request-> addHeaders("Authorization: OAuth $access_token");
+        $response->object = $request-> makeHTTPRequest();
+        $status = $request->getStatus();
+    
+        if ( $status != 200 )
+        {
+            $response->error = "Error: call to URL $url failed with status $status, response , curl_error " . 
+                    $request->getError() . ", curl_errno " . $request->getErrorNum();
+        }
+    }
+    catch(Exception $e){
+        $response->error = $e.getMessage();
+    }
+    return $response;
+}
 
 function getCustomerProfileIdFromSalesforce($contactId)
 {
