@@ -21,6 +21,10 @@ function salesforceModRoutes()
         "customer-profile-id" => array(
             "callback" => "getCustomerProfileIdFromSalesforce",
             "files" => array()
+        ),
+        "get-object-by-id" => array(
+            "callback" => "getObjectById",
+            "files" => array()
         )
     );
     return $salesforceModRoutes;
