@@ -1,28 +1,17 @@
 <?php
 
 
-class SalesforceModule extends Module {
+class SalesforceModule extends Module{
+    private $deps = array();
 
-    //$dependencies = array('module1','module2');
-
-    // foreach($dep as $d){
-
-    }        // load the module first
-
-
-   public function __contruct(){
-       parent::__construct();
-       $this->routes = salesforceModRoutes();
-   }
-
-   public 
-
-
+    public function __construct(){
+        parent::__construct();
+        $this->routes = salesforceModRoutes();
+        $this->dependencies = $this->deps;
+    }
+    
+    
 }
-
-
-
-
 function salesforceModRoutes()
 {   
     $salesforceModRoutes = array(
