@@ -1,4 +1,19 @@
 <?php
+
+
+class SalesforceModule extends Module{
+    private $deps = array();
+
+    public function __construct(){
+        parent::__construct();
+        $this->routes = salesforceModRoutes();
+        $this->dependencies = $this->deps;
+        $this->files = array();
+        $this->name = "salesforce";
+    }
+    
+    
+}
 function salesforceModRoutes()
 {   
     $salesforceModRoutes = array(
@@ -92,13 +107,17 @@ function getOauthTokenWithPassword()
 
 function getOauthToken($params)
 {
+    $username = $params["username"];
+
     $token_url = LOGIN_URI . "/services/oauth2/token";
     $request = new HTTPRequest($token_url);
     $request->setParams($params);
+
     $request->setPost();
     $response = $request->makeHTTPRequest();
     $phpResponse = $response->getPhpArray();
-    if(!empty($phpResponse['error'])) throw new exception($phpResponse['error_description']);
+
+    if(!empty($phpResponse['error'])) throw new exception($username."   ".$phpResponse['error_description']);
     return $response;
 }
 //Get a salesforce database sObject by Id
@@ -221,5 +240,6 @@ function generateOrder($contactId, $pricebookEntryId)
     }
     return $responseBody;
 }
-
-?>
+function salesforceTest(){
+    return "hello from salesforce test";
+}
