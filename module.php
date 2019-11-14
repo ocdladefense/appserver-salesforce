@@ -8,6 +8,8 @@ class SalesforceModule extends Module{
         parent::__construct();
         $this->routes = salesforceModRoutes();
         $this->dependencies = $this->deps;
+        $this->files = array();
+        $this->name = "salesforce";
     }
     
     
@@ -206,5 +208,6 @@ function generateOrder($contactId, $pricebookEntryId)
     }
     return $responseBody;
 }
-
-?>
+function salesforceTest(){
+    return "hello from salesforce test";
+}
