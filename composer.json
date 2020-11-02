@@ -1,14 +1,15 @@
 {
-    "name": "trevor-uehlin/salesforce-module",
+    "name": "ocdladefense/appserver-salesforce",
     "description": "A module designed to handle interactions with a Salesforce customer database.  Uses \"oAuth\" authentication.",
     "type": "wordpress-theme",
     "authors": [
         {
-            "name": "Trevor Uehlin",
-            "email": "uehlin.trevor@gmail.com"
+            "name": "Jose Bernal",
+            "email": "jbernal.web.dev@gmail.com"
         }
     ],
     "require": {
-        "composer/installers":"~1.0"
+        "composer/installers":"~1.0",
+        "developerforce/force.com-toolkit-for-php":"v27.0.3"
     }
 }

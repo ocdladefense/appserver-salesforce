@@ -1,0 +1,17 @@
+
+{
+	"comment": "Module definition file.",
+	"name": "salesforce",
+	"description": "Interact with a slaesforce account.",
+	"files": [],
+	"routes": {
+        "salesforce/generate/order":{
+            "callback":"generateOreder",
+            "content-type":"application/json"
+        },
+        "salesforce/get/customer/profileId/%contactId":{
+            "callback":"getCustomerProfileIdFromSalesforce",
+            "content-type":"application/json"
+        }
+    }
+}

@@ -6,6 +6,7 @@ settings.js
 config.php
 config.js
 partner.wsdl.xml
+composer.lock
 
 #  But keep default settings.php and settings.js files
 #  config-default.php

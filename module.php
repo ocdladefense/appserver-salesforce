@@ -37,8 +37,8 @@ function generateOrder($contactId, $pricebookEntryId)
     $responseBody = new stdClass();
     $responseBody->orderNumber = null;
 
-    require_once ('../vendor/salesforce/soapclient/SforcePartnerClient.php');
-    require_once ('../vendor/salesforce/soapclient/SforceHeaderOptions.php');
+    require_once ('../vendor/developerforce/force.com-toolkit-for-php/soapclient/SforcePartnerClient.php');
+    require_once ('../vendor/developerforce/force.com-toolkit-for-php/soapclient/SforceHeaderOptions.php');
 
     $sfdc = new SforcePartnerClient();
     // create a connection using the partner wsdl
