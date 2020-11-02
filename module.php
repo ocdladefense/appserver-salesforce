@@ -2,35 +2,11 @@
 
 
 class SalesforceModule extends Module{
-    private $deps = array();
 
     public function __construct(){
         parent::__construct();
-        $this->routes = salesforceModRoutes();
-        $this->dependencies = $this->deps;
-        $this->files = array();
-        $this->name = "salesforce";
     }
-    
-    
 }
-function salesforceModRoutes()
-{   
-    $salesforceModRoutes = array(
-        "generate-order" => array(
-            "callback" => "generateOrder",
-            "files" => array()
-        ),
-        "customer-profile-id" => array(
-            "callback" => "getCustomerProfileIdFromSalesforce",
-            "files" => array()
-        )
-    );
-    return $salesforceModRoutes;
-}
-
-
-
 
 function generateOrder($contactId, $pricebookEntryId)
 {
