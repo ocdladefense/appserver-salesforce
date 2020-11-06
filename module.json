@@ -12,6 +12,10 @@
         "salesforce/get/customer/profileId/%contactId":{
             "callback":"getCustomerProfileIdFromSalesforce",
             "content-type":"application/json"
+        },
+        "salesforce/get/soapclient":{
+            "callback":"getSoapClient",
+            "content-type":"application/json"
         }
     }
 }
