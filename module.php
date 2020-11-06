@@ -1,11 +1,21 @@
 <?php
 
-
 class SalesforceModule extends Module{
 
     public function __construct(){
         parent::__construct();
     }
+
+    
+public function generateOrder()//$contactId, $pricebookEntryId)
+{
+
+    $contactId = "0031U00001KcND7QAN";
+    $pricebookEntryId = "01u1U000000z8x4QAA";
+    $responseBody = new stdClass();
+    $responseBody->orderNumber = null;
+
+    $SoapClient = $this->getSoapClient();
 
 
 // NOTE: specific function here.  needs to be inside class...
@@ -37,14 +47,15 @@ function soapRequest($className, $methodName) {
     // create a connection using the partner wsdl
     // NOTE: create a path to config in globals.php (i.e., get_config_path(); don't assume you can always get to config with ../config!
     $SoapClient = $sfdc->createConnection("../config/enterprise.wsdl");
+
     $loginResult = false;
 
     try {
         // log in with username, password and security token if required
+        $loginResult = $sfdc->login(SALESFORCE_USERNAME,SALESFORCE_PASSWORD,SALESFORCE_SECURITY_TOKEN);
         // NOTE: Prepare config.php so you can connect to multiple Salesforce Orgs.
         //  Having only one username/pass/token combo assumes there's only one Org to connect to. 
         //  Might be several.
-        $loginResult = $sfdc->login(SALESFORCE_USERNAME,SALESFORCE_PASSWORD,SECURITY_TOKEN);
     } catch (Exception $e) {
         $responseBody->error = "Failed to login to SforcePartnerClient". $e->faultstring;
     }
@@ -59,6 +70,7 @@ function soapRequest($className, $methodName) {
 
     $client = new SoapClient(_WS_WSDL_);
     $sforce_header = new SoapHeader(_WS_NAMESPACE_, "SessionHeader", array("sessionId" => $sfdc->getSessionId()));
+    // var_dump($sforce_header);exit;
     $client->__setSoapHeaders(array($sforce_header));
 
     try 
@@ -80,12 +92,38 @@ function soapRequest($className, $methodName) {
     return $responseBody;
 }
 
+public function getSoapClient(){
+
+    // require_once ('vendor/developerforce/force.com-toolkit-for-php/soapclient/SforcePartnerClient.php');
+    // require_once ('vendor/developerforce/force.com-toolkit-for-php/soapclient/SforceHeaderOptions.php');
+
+    $sfdc = new SforcePartnerClient();
+    // create a connection using the partner wsdl
+    $SoapClient = $sfdc->createConnection("../config/wsdl/enterprise.wsdl");
+
+    return $SoapClient;
+}
+
+private function getOAuthConfig(){
+
+    $oauth_config = array(
+        "oauth_url" => SALESFORCE_LOGIN_URL,
+        "client_id" => SALESFORCE_CLIENT_ID,
+        "client_secret" => SALESFORCE_CLIENT_SECRET,
+        "username" => SALESFORCE_USERNAME,
+        "password" => SALESFORCE_PASSWORD,
+        "security_token" => SALESFORCE_SECURITY_TOKEN,
+        "redirect_uri" => SALESFORCE_REDIRECT_URI
+    );
+
+    return $oauth_config;
+}
 
 
 
 
 
-function getCustomerProfileIdFromSalesforce($contactId)
+public function getCustomerProfileIdFromSalesforce($contactId)
 {
     $phpResponse = new stdClass();
     $phpResponse->profileId = null;
@@ -104,7 +142,7 @@ function getCustomerProfileIdFromSalesforce($contactId)
     return $phpResponse;
 }
 
-function getCustomerByContactId($contactId, $instance_url, $access_token) 
+public function getCustomerByContactId($contactId, $instance_url, $access_token) 
 {
     try{
         $response = new stdClass();
@@ -128,7 +166,5 @@ function getCustomerByContactId($contactId, $instance_url, $access_token)
 
     return $response;
 }
-
-
-
 }
+
