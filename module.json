@@ -6,7 +6,7 @@
 	"files": [],
 	"routes": {
         "salesforce/generate/order":{
-            "callback":"generateOreder",
+            "callback":"generateOrder",
             "content-type":"application/json"
         },
         "salesforce/get/customer/profileId/%contactId":{
