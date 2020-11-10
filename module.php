@@ -7,7 +7,7 @@ class SalesforceModule extends Module{
     }
 
     
-    public function generateOrder()//$contactId, $pricebookEntryId)
+    public function generateOrder($contactId = null, $pricebookEntryId = null)
     {
 
         $contactId = "0031U00001WaiGcQAJ"; //Specific to your org!
