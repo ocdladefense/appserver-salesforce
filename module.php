@@ -4,58 +4,40 @@ class SalesforceModule extends Module{
 
     private $sfdc;
 
-    private $responseBody;
+    private $client;
 
-    public function __construct(){
+    private $wsParams;
+
+
+    public function __construct() {
         parent::__construct();
     }
 
     
-    public function generateOrder($contactId = null, $pricebookEntryId = null, $apexClass = null, $apexMethod = null)
-    {
-
-        $contactId = "0031U00001WaiGcQAJ"; //Specific to your org!
-        $pricebookEntryId = "01u1U000001tWTwQAM"; //Specific to your org!
-        $apexClass = "CustomOrder";
-        $apexMethod = "generateOrder";
+    public function generateOrder($contactId, $pricebookEntryId, $apexClass, $apexMethod) {
 
         //The parameters expected by the webservice method in your apex class.
-        $wsParams = array(
+        $this->wsParams = array(
             "customerId" => $contactId,
             "pricebookEntryId" => $pricebookEntryId
         );
 
-        $this->responseBody = new stdClass();
-        $this->responseBody->orderNumber = null;
-
-        $this->setUpSoapClientConnection();
+        $this->getSoapClientConnection();
 
         $this->login();
 
         $this->setSoapClientConfiguration($apexClass);
 
-        $client = $this->generateClient();
+        $this->generateClient();
 
-        try 
-        {
-            // call the web service via post
-            $response = $client->$apexMethod($wsParams);
-            $this->responseBody->orderNumber = $response->result;
-        }
-        catch (Exception $e) 
-        {
-            global $errors;
-            $errors = $e->faultstring;
-            $this->responseBody->error = "Error attempting to call webservice via post ".$errors;
-        }
-        return $this->responseBody;
+        return $this->makeWebserviceRequest($apexMethod);
     }
 
-    private function setUpSoapClientConnection(){
+    private function getSoapClientConnection() {
 
         $this->sfdc = new SforcePartnerClient();
-        // create a connection using the partner wsdl
-        return $this->sfdc->createConnection("../config/wsdl/enterprise.wsdl");
+        // create a connection using the appropriate wsdl
+        $this->sfdc->createConnection("../config/wsdl/enterprise.wsdl");
     }
 
     private function login(){
@@ -83,13 +65,40 @@ class SalesforceModule extends Module{
 
     private function generateClient(){
 
-        $client = new SoapClient(_WS_WSDL_);
+        $this->client = new SoapClient(_WS_WSDL_);
         $sforce_header = new SoapHeader(_WS_NAMESPACE_, "SessionHeader", array("sessionId" => $this->sfdc->getSessionId()));
-        $client->__setSoapHeaders(array($sforce_header));
-
-        return $client;
+        $this->client->__setSoapHeaders(array($sforce_header));
     }
 
+    private function makeWebserviceRequest($apexMethod){
 
+        $responseBody = new stdClass();
+        $responseBody->orderNumber = null;
+
+
+        try 
+        {
+            // call the web service via post
+            $response = $this->client->$apexMethod($this->wsParams);
+            $responseBody->orderNumber = $response->result;
+        }
+        catch (Exception $e) 
+        {
+            global $errors;
+            $errors = $e->faultstring;
+            $responseBody->error = "Error attempting to call webservice via post ".$errors;
+        }
+        return $responseBody;
+    }
+
+    public function generateOrderTest(){
+
+        $contactId = "0031U00001WaiGcQAJ"; //Specific to your org!
+        $pricebookEntryId = "01u1U000001tWTwQAM"; //Specific to your org!
+        $apexClass = "CustomOrder";
+        $apexMethod = "generateOrder";
+
+        return $this->generateOrder($contactId, $pricebookEntryId, $apexClass, $apexMethod);
+    }
 }
 
