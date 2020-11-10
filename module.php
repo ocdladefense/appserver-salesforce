@@ -7,11 +7,14 @@ class SalesforceModule extends Module{
     }
 
     
-    public function generateOrder($contactId = null, $pricebookEntryId = null)
+    public function generateOrder($contactId = null, $pricebookEntryId = null, $apexClass = null, $apexMethod = null)
     {
 
         $contactId = "0031U00001WaiGcQAJ"; //Specific to your org!
         $pricebookEntryId = "01u1U000001tWTwQAM"; //Specific to your org!
+        $apexClass = "CustomOrder";
+        $apexMethod = "generateOrder";
+
         $responseBody = new stdClass();
         $responseBody->orderNumber = null;
 
@@ -32,7 +35,7 @@ class SalesforceModule extends Module{
         //Parse the URL and send it to the configFile
         $parsedURL = parse_url($sfdc->getLocation());
         define ("_SFDC_SERVER_", substr($parsedURL['host'],0,strpos($parsedURL['host'], '.')));
-        define ("_WS_NAME_", "CustomOrder"); // NOTE: CustomOrder should not be hard-coded.  Pass it in via the route for now.
+        define ("_WS_NAME_", $apexClass);
         define ("_WS_WSDL_", "../config/wsdl/" . _WS_NAME_ . ".wsdl.xml"); // NOTE: duplicate reference to wsdl file is above.  Fix.
         define ("_WS_ENDPOINT_", 'https://' . _SFDC_SERVER_ . '.salesforce.com/services/wsdl/class/' . _WS_NAME_);
         define ("_WS_NAMESPACE_", 'http://soap.sforce.com/schemas/class/' . _WS_NAME_);
@@ -49,7 +52,7 @@ class SalesforceModule extends Module{
                     "customerId" => $contactId,
                     "pricebookEntryId" => $pricebookEntryId
             );
-            $response = $client->generateOrder($params); // NOTE: generateOrder should not be hard-coded but should be passed in via the route.
+            $response = $client->$apexMethod($params);
             $responseBody->orderNumber = $response->result;
         }
         catch (Exception $e) 
