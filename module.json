@@ -5,12 +5,12 @@
 	"description": "Interact with a slaesforce account.",
 	"files": [],
 	"routes": {
-        "salesforce/generate/order":{
+        "salesforce/generate/order/%contactId/%pricebookEntryId/%apexClass/%apexMethod":{
             "callback":"generateOrder",
             "content-type":"application/json"
         },
-        "salesforce/get/customer/profileId/%contactId":{
-            "callback":"getCustomerProfileIdFromSalesforce",
+        "salesforce/generate/order/test":{
+            "callback":"generateOrderTest",
             "content-type":"application/json"
         },
         "salesforce/get/soapclient":{
