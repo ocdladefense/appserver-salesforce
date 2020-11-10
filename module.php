@@ -8,6 +8,8 @@ class SalesforceModule extends Module{
 
     private $wsParams;
 
+    private $responseBody;
+
 
     public function __construct() {
         parent::__construct();
@@ -15,6 +17,8 @@ class SalesforceModule extends Module{
 
     
     public function generateOrder($contactId, $pricebookEntryId, $apexClass, $apexMethod) {
+
+        $this->responseBody = new stdClass();
 
         //The parameters expected by the webservice method in your apex class.
         $this->wsParams = array(
@@ -42,10 +46,8 @@ class SalesforceModule extends Module{
 
     private function login(){
 
-        $loginResult = false;
-
         try {
-            $loginResult = $this->sfdc->login(SALESFORCE_USERNAME,SALESFORCE_PASSWORD,SALESFORCE_SECURITY_TOKEN);
+            $this->sfdc->login(SALESFORCE_USERNAME,SALESFORCE_PASSWORD,SALESFORCE_SECURITY_TOKEN);
         } catch (Exception $e) {
             $this->responseBody->error = "Failed to login to SforcePartnerClient". $e->faultstring;
         }
@@ -72,23 +74,19 @@ class SalesforceModule extends Module{
 
     private function makeWebserviceRequest($apexMethod){
 
-        $responseBody = new stdClass();
-        $responseBody->orderNumber = null;
-
-
         try 
         {
             // call the web service via post
             $response = $this->client->$apexMethod($this->wsParams);
-            $responseBody->orderNumber = $response->result;
+            $this->responseBody->orderNumber = $response->result;
         }
         catch (Exception $e) 
         {
             global $errors;
             $errors = $e->faultstring;
-            $responseBody->error = "Error attempting to call webservice via post ".$errors;
+            $this->responseBody->error = "Error attempting to call webservice via post ".$errors;
         }
-        return $responseBody;
+        return $this->responseBody;
     }
 
     public function generateOrderTest(){
