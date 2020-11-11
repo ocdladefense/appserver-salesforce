@@ -28,7 +28,12 @@ class SalesforceModule extends Module{
 
         $this->getSoapClientConnection($orgName);
 
+  
+
         $this->login();
+
+        // var_dump($this->responseBody);exit;
+        // print $this->sfdc->getSessionId();exit;
 
         $this->setSoapClientConfiguration($apexClass);
 
