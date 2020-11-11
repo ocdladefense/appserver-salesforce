@@ -1,6 +1,11 @@
 <?php
 
-class SalesforceModule extends Module{
+
+
+
+class SalesforceModule extends Module {
+
+		const DEFAULT_ORG_ALIAS = "myDefaultOrg";
 
     private $sfdc;
 
@@ -15,10 +20,75 @@ class SalesforceModule extends Module{
         parent::__construct();
     }
 
-    
-    public function generateOrder($contactId, $pricebookEntryId, $apexClass, $apexMethod, $orgName) {
 
-        $this->responseBody = new stdClass();
+		public function myTest() {
+			$this->invokeMethod("foobar","baz");
+		}
+
+		// , $apexClass, $apexMethod, $orgName
+		public function invokeMethod($class, $method, $params = array(), $org = null) {
+				$org = $org ?: self::DEFAULT_ORG_ALIAS;
+				
+				$orgWsdl = path_to_wsdl($org);
+				$clientWsdl = path_to_wsdl($class);
+				
+        $resp = new stdClass();
+        $resp->error = null;
+        $resp->something = null;
+				
+		
+				// We can set these variables first.
+				$namespace = "http://soap.sforce.com/schemas/class/{$class}";
+        define ("_WS_NAME_", $class); 
+        define ("_WS_WSDL_", $wsdl); 
+        define ("_WS_NAMESPACE_", $namespace);
+		
+		
+				// Instantiate the partner Client.
+        $sfdc = new SforcePartnerClient();
+        // Create a connection using the appropriate wsdl
+        $sfdc->createConnection($wsdl);
+        $url = parse_url($sfdc->getLocation());
+        $server = substr($url['host'],0,strpos($url['host'], '.'));
+				$endpoint = "https://{$server}.salesforce.com/services/wsdl/class/{$class}";
+        define ("_SFDC_SERVER_", $server); // done	
+        define ("_WS_ENDPOINT_", $endpoint);
+        
+        
+        
+        exit;
+        
+
+        // Returns a LoginResult object.
+        $result = $sfdc->login(SALESFORCE_USERNAME,SALESFORCE_PASSWORD,SALESFORCE_SECURITY_TOKEN);
+
+        try {
+          $sfdc->login();
+        } catch (Exception $e) {
+					$resp->error = "Failed to login to SforcePartnerClient". $e->faultstring;
+        }
+				
+				
+        // $this->setSoapClientConfiguration($class);
+
+        $client = new SoapClient($wsdl);
+        $header = new SoapHeader($namespace, "SessionHeader", array(
+        	"sessionId" => $sfdc->getSessionId()
+        ));
+        $client->__setSoapHeaders(array($header));
+
+        return $this->send($client, $method, $params);
+		}
+    
+    
+    public function runReport($orgAlias, $reportName) {
+    
+    
+    }
+    
+    public function generateOrder($contactId, $pricebookEntryId, $org = null) {
+
+
 
         //The parameters expected by the webservice method in your apex class.
         $this->wsParams = array(
@@ -26,78 +96,54 @@ class SalesforceModule extends Module{
             "pricebookEntryId" => $pricebookEntryId
         );
 
-        $this->getSoapClientConnection($orgName);
 
-        $this->login();
+			// "CustomOrder", "generateOrder"
 
-        $this->setSoapClientConfiguration($apexClass);
-
-        $this->generateClient();
-
-        return $this->makeWebserviceRequest($apexMethod);
     }
 
-    private function getSoapClientConnection($orgName) {
 
-        $this->sfdc = new SforcePartnerClient();
-        // create a connection using the appropriate wsdl
-        $this->sfdc->createConnection(ORG_WSDL[$orgName]);
-    }
+	
 
-    private function login(){
 
-        try {
-            $this->sfdc->login(SALESFORCE_USERNAME,SALESFORCE_PASSWORD,SALESFORCE_SECURITY_TOKEN);
-        } catch (Exception $e) {
-            $this->responseBody->error = "Failed to login to SforcePartnerClient". $e->faultstring;
-        }
-    }
+    private function soapInit($server, $class) {
 
-    private function setSoapClientConfiguration($apexClass){
-
-        //Parse the URL and send it to the configFile
-        $parsedURL = parse_url($this->sfdc->getLocation());
-        define ("_SFDC_SERVER_", substr($parsedURL['host'],0,strpos($parsedURL['host'], '.')));
-        define ("_WS_NAME_", $apexClass);
-        define ("_WS_WSDL_", "../config/wsdl/" . _WS_NAME_ . ".wsdl.xml");
-        define ("_WS_ENDPOINT_", 'https://' . _SFDC_SERVER_ . '.salesforce.com/services/wsdl/class/' . _WS_NAME_);
-        define ("_WS_NAMESPACE_", 'http://soap.sforce.com/schemas/class/' . _WS_NAME_);
+			
+								
 
     }
 
     private function generateClient(){
 
-        $this->client = new SoapClient(_WS_WSDL_);
-        $sforce_header = new SoapHeader(_WS_NAMESPACE_, "SessionHeader", array("sessionId" => $this->sfdc->getSessionId()));
-        $this->client->__setSoapHeaders(array($sforce_header));
+
     }
 
-    private function makeWebserviceRequest($apexMethod){
+    private function send($client, $method, $params = array()) {
 
+				$result = null;
+				
         try 
         {
-            // call the web service via post
-            $response = $this->client->$apexMethod($this->wsParams);
-            $this->responseBody->orderNumber = $response->result;
+            // Call the web service via post
+            $resp = $client->{$method}($params);
+            $result = $resp->result;
         }
         catch (Exception $e) 
         {
-            global $errors;
+            global $errors; // todo probably remove this.
             $errors = $e->faultstring;
-            $this->responseBody->error = "Error attempting to call webservice via post ".$errors;
+            $result = "Error attempting to call webservice via post {$errors}";
         }
-        return $this->responseBody;
+        
+        
+        return $result;
     }
 
     public function generateOrderTest(){
 
         $contactId = "0031U00001WaiGcQAJ"; //Specific to your org!
         $pricebookEntryId = "01u1U000001tWTwQAM"; //Specific to your org!
-        $apexClass = "CustomOrder";
-        $apexMethod = "generateOrder";
-        $orgName = "myOrg";
 
-        return $this->generateOrder($contactId, $pricebookEntryId, $apexClass, $apexMethod, $orgName);
+        return $this->generateOrder($contactId, $pricebookEntryId, "myOrg");
     }
 }
 
