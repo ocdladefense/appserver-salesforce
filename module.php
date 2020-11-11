@@ -16,7 +16,7 @@ class SalesforceModule extends Module{
     }
 
     
-    public function generateOrder($contactId, $pricebookEntryId, $apexClass, $apexMethod) {
+    public function generateOrder($contactId, $pricebookEntryId, $apexClass, $apexMethod, $orgName) {
 
         $this->responseBody = new stdClass();
 
@@ -26,7 +26,7 @@ class SalesforceModule extends Module{
             "pricebookEntryId" => $pricebookEntryId
         );
 
-        $this->getSoapClientConnection();
+        $this->getSoapClientConnection($orgName);
 
         $this->login();
 
@@ -37,11 +37,11 @@ class SalesforceModule extends Module{
         return $this->makeWebserviceRequest($apexMethod);
     }
 
-    private function getSoapClientConnection() {
+    private function getSoapClientConnection($orgName) {
 
         $this->sfdc = new SforcePartnerClient();
         // create a connection using the appropriate wsdl
-        $this->sfdc->createConnection("../config/wsdl/enterprise.wsdl");
+        $this->sfdc->createConnection(ORG_WSDL[$orgName]);
     }
 
     private function login(){
@@ -59,7 +59,7 @@ class SalesforceModule extends Module{
         $parsedURL = parse_url($this->sfdc->getLocation());
         define ("_SFDC_SERVER_", substr($parsedURL['host'],0,strpos($parsedURL['host'], '.')));
         define ("_WS_NAME_", $apexClass);
-        define ("_WS_WSDL_", "../config/wsdl/" . _WS_NAME_ . ".wsdl.xml"); // NOTE: duplicate reference to wsdl file is above.  Fix.
+        define ("_WS_WSDL_", "../config/wsdl/" . _WS_NAME_ . ".wsdl.xml");
         define ("_WS_ENDPOINT_", 'https://' . _SFDC_SERVER_ . '.salesforce.com/services/wsdl/class/' . _WS_NAME_);
         define ("_WS_NAMESPACE_", 'http://soap.sforce.com/schemas/class/' . _WS_NAME_);
 
@@ -95,8 +95,9 @@ class SalesforceModule extends Module{
         $pricebookEntryId = "01u1U000001tWTwQAM"; //Specific to your org!
         $apexClass = "CustomOrder";
         $apexMethod = "generateOrder";
+        $orgName = "myOrg";
 
-        return $this->generateOrder($contactId, $pricebookEntryId, $apexClass, $apexMethod);
+        return $this->generateOrder($contactId, $pricebookEntryId, $apexClass, $apexMethod, $orgName);
     }
 }
 
