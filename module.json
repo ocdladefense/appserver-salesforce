@@ -5,7 +5,7 @@
 	"description": "Interact with a slaesforce account.",
 	"files": [],
 	"routes": {
-        "salesforce/generate/order/%contactId/%pricebookEntryId/%apexClass/%apexMethod":{
+        "salesforce/generate/order/%contactId/%pricebookEntryId/%apexClass/%apexMethod/%orgName":{
             "callback":"generateOrder",
             "content-type":"application/json"
         },
