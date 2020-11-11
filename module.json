@@ -7,7 +7,7 @@
 	"routes": {
         "salesforce/invoke/%apexClass/%apexMethod":{
             "callback":"invokeMethod",
-            "content-type":"application/json"
+            "content-type":"text/html"
         },
         "salesforce/%orgAlias/reports/%reportName":{
             "callback":"runReport",
@@ -15,7 +15,7 @@
         },
         "salesforce/order/create":{
             "callback":"generateOrderTest",
-            "content-type":"application/json"
+            "content-type":"text/html"
         }
     }
 }
