@@ -1,6 +1,6 @@
 <?php
 /**
- * Example module for executing Apex using the SOAP.
+ * Example module for executing Apex using SOAP.
  *
  *
  *  Example usage:
