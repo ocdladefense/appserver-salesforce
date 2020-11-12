@@ -66,7 +66,7 @@ class SoapClient {
 		catch (Exception $e) {
 			global $errors; // todo probably remove this.
 			$errors = $e->faultstring;
-			$result = "Error attempting to call webservice via post {$errors}";
+			$result = "Error attempting to call webservice {$class}:{$method}:{$errors}";
 		}
 
 
