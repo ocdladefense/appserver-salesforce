@@ -1,102 +1,100 @@
 <?php
+/**
+ * Example module for executing Apex using SOAP.
+ *
+ *
+ *  Example usage:
+ *    
+ *      $module = new SalesforceModule();
+ *
+ *			$data = $module->runReport("CurrentMembers");
+ *
+ *      file_save_contents($data, "/path/to/file");
+ **/
 
-class SalesforceModule extends Module{
 
-    private $sfdc;
+use Force\SoapClient as SoapClient;
+use Force\SoapConnection as SoapConnection;
 
-    private $client;
 
-    private $wsParams;
+// If this file is used outside of its framework,
+//  then create a class stub for Module.
+if(!class_exists("Module")) {
 
-    private $responseBody;
+	class Module {}
+}
+
+
+
+class SalesforceModule extends Module {
+
+		const DEFAULT_ORG_ALIAS = "myDefaultOrg";
 
 
     public function __construct() {
         parent::__construct();
     }
 
+
+		/**
+		 * Run an IABC report.
+		 *
+		 *  Execute a report on the IABC Salesforce instance.
+		 *  
+		 * @return - Returns a Blob or csv file, or array, that can be 
+		 *  saved and further processed.
+		 */
+    public function runReport($reportName) {
     
-    public function generateOrder($contactId, $pricebookEntryId, $apexClass, $apexMethod) {
-
-        $this->responseBody = new stdClass();
-
-        //The parameters expected by the webservice method in your apex class.
-        $this->wsParams = array(
-            "customerId" => $contactId,
-            "pricebookEntryId" => $pricebookEntryId
-        );
-
-        $this->getSoapClientConnection();
-
-        $this->login();
-
-        $this->setSoapClientConfiguration($apexClass);
-
-        $this->generateClient();
-
-        return $this->makeWebserviceRequest($apexMethod);
+    
     }
+    
+    public function generateOrder($contactId, $pricebookEntryId, $org = null) {
 
-    private function getSoapClientConnection() {
+      return $this->invokeMethod("CustomOrder", "generateOrder", array(
+        "customerId" => $contactId,
+        "pricebookEntryId" => $pricebookEntryId
+      ));
 
-        $this->sfdc = new SforcePartnerClient();
-        // create a connection using the appropriate wsdl
-        $this->sfdc->createConnection("../config/wsdl/enterprise.wsdl");
-    }
-
-    private function login(){
-
-        try {
-            $this->sfdc->login(SALESFORCE_USERNAME,SALESFORCE_PASSWORD,SALESFORCE_SECURITY_TOKEN);
-        } catch (Exception $e) {
-            $this->responseBody->error = "Failed to login to SforcePartnerClient". $e->faultstring;
-        }
-    }
-
-    private function setSoapClientConfiguration($apexClass){
-
-        //Parse the URL and send it to the configFile
-        $parsedURL = parse_url($this->sfdc->getLocation());
-        define ("_SFDC_SERVER_", substr($parsedURL['host'],0,strpos($parsedURL['host'], '.')));
-        define ("_WS_NAME_", $apexClass);
-        define ("_WS_WSDL_", "../config/wsdl/" . _WS_NAME_ . ".wsdl.xml"); // NOTE: duplicate reference to wsdl file is above.  Fix.
-        define ("_WS_ENDPOINT_", 'https://' . _SFDC_SERVER_ . '.salesforce.com/services/wsdl/class/' . _WS_NAME_);
-        define ("_WS_NAMESPACE_", 'http://soap.sforce.com/schemas/class/' . _WS_NAME_);
-
-    }
-
-    private function generateClient(){
-
-        $this->client = new SoapClient(_WS_WSDL_);
-        $sforce_header = new SoapHeader(_WS_NAMESPACE_, "SessionHeader", array("sessionId" => $this->sfdc->getSessionId()));
-        $this->client->__setSoapHeaders(array($sforce_header));
-    }
-
-    private function makeWebserviceRequest($apexMethod){
-
-        try 
-        {
-            // call the web service via post
-            $response = $this->client->$apexMethod($this->wsParams);
-            $this->responseBody->orderNumber = $response->result;
-        }
-        catch (Exception $e) 
-        {
-            global $errors;
-            $errors = $e->faultstring;
-            $this->responseBody->error = "Error attempting to call webservice via post ".$errors;
-        }
-        return $this->responseBody;
     }
 
     public function generateOrderTest(){
 
-        $contactId = "0031U00001WaiGcQAJ"; //Specific to your org!
-        $pricebookEntryId = "01u1U000001tWTwQAM"; //Specific to your org!
-        $apexClass = "CustomOrder";
-        $apexMethod = "generateOrder";
+      $contactId = "0031U00001WaiGcQAJ"; //Specific to your org!
+      $pricebookEntryId = "01u1U000001tWTwQAM"; //Specific to your org!
 
-        return $this->generateOrder($contactId, $pricebookEntryId, $apexClass, $apexMethod);
-    }
+      return $this->invokeMethod("CustomOrder", "generateOrder", array(
+        "customerId" => $contactId,
+        "pricebookEntryId" => $pricebookEntryId
+      ));
+
+  }
+
+
+  public function invokeMethod($class, $method, $params = array(), $orgName = null) {
+
+		// Specify org configurations.
+		$orgName = $orgName ?: self::DEFAULT_ORG_ALIAS;
+		$org = load_org($orgName);		
+		
+		// Discover WSDL files.
+		$orgWsdl = path_to_wsdl("enterprise", $orgName);
+		$clientWsdl = path_to_wsdl($class, $orgName);
+
+
+		$sc = new SoapConnection($orgWsdl);
+		$client = $sc->login($org["username"],$org["password"],$org["token"]);
+		$client->load($clientWsdl);
+		
+		
+		return $client->execute($class, $method, $params);
+	}
+    
+
+    
+    
+
+
+
 }
 

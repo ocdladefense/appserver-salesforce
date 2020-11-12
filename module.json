@@ -1,21 +1,21 @@
 
 {
-	"comment": "Module definition file.",
 	"name": "salesforce",
-	"description": "Interact with a slaesforce account.",
-	"files": [],
+	"comment": "Module definition file.",
+	"description": "Interact with Salesforce using WSDL.",
+	"files": ["SoapConnection.php","SoapClient.php"],
 	"routes": {
-        "salesforce/generate/order/%contactId/%pricebookEntryId/%apexClass/%apexMethod":{
-            "callback":"generateOrder",
-            "content-type":"application/json"
+        "salesforce/invoke/%apexClass/%apexMethod":{
+            "callback":"invokeMethod",
+            "content-type":"text/html"
         },
-        "salesforce/generate/order/test":{
+        "salesforce/%orgAlias/reports/%reportName":{
+            "callback":"runReport",
+            "content-type":"text/csv"
+        },
+        "salesforce/order/create":{
             "callback":"generateOrderTest",
-            "content-type":"application/json"
-        },
-        "salesforce/get/soapclient":{
-            "callback":"getSoapClient",
-            "content-type":"application/json"
+            "content-type":"text/html"
         }
     }
 }
