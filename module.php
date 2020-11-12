@@ -4,12 +4,20 @@
  *
  *
  *  Example usage:
- *    
+ *    	require("developerforce/force.com-toolkit-for-php/*);
+ *			require("src/SoapClient.php");
+ *			require("src/SoapConnection.php");
+ *			require("module.php"); // this file.
+ *
  *      $module = new SalesforceModule();
  *
  *			$data = $module->runReport("CurrentMembers");
  *
- *      file_save_contents($data, "/path/to/file");
+ *			// Save the 
+ *      if(false === file_put_contents($data, "/path/to/file.csv")) {
+ *				print "There was an error.";
+ *			}
+ *
  **/
 
 
