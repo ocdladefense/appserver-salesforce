@@ -14,7 +14,7 @@
  *			$data = $module->runReport("CurrentMembers");
  *
  *			// Save the 
- *      if(false === file_put_contents($data, "/path/to/file.csv")) {
+ *      if(false === file_put_contents("/where/to/save/data.csv", $data)) {
  *				print "There was an error.";
  *			}
  *
