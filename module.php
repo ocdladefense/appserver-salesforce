@@ -46,52 +46,96 @@ class SalesforceModule extends Module {
 		 */
     public function runReport($reportName) {
     
-    
+    	$credentials = array(
+    		"/path/to/enterprise-wsdl.wsdl",
+    		"/path/to/client-wsdl.wsdl",
+    		"myUsername",
+    		"myPassword",
+    		"myToken"
+    	);
+			
+			return $this->invokeMethodWithCredentials("IABCReports","run",$reportName,$credentials);
     }
-    
-    public function generateOrder($contactId, $pricebookEntryId, $org = null) {
 
-      return $this->invokeMethod("CustomOrder", "generateOrder", array(
-        "customerId" => $contactId,
-        "pricebookEntryId" => $pricebookEntryId
-      ));
 
-    }
 
+		/**
+		 * Generate a Salesforce Order using a sample ContactId and Product.
+		 *
+		 * This invokes a SOAP method to generate the Order record in Salesforce.
+		 *
+		 * @return String Order.OrderNumber
+		 */
     public function generateOrderTest(){
 
-      $contactId = "0031U00001WaiGcQAJ"; //Specific to your org!
-      $pricebookEntryId = "01u1U000001tWTwQAM"; //Specific to your org!
+      $contactId = "0031U00001WaiGcQAJ"; // Specific to your org!
+      $pricebookEntryId = "01u1U000001tWTwQAM"; // Specific to your org!
+
+      return $this->generateOrder($contactId, $pricebookEntryId);
+  	}
+  	
+  	
+  	
+  	
+  	
+		/**
+		 * Generate a Salesforce Order from the given contact id and product.
+		 *
+		 *  This invokes a SOAP method to generate the Order record in Salesforce.
+		 *
+		 *  @return String Order.OrderNumber
+		 */
+    public function generateOrder($contactId, $pricebookEntryId) {
+
 
       return $this->invokeMethod("CustomOrder", "generateOrder", array(
         "customerId" => $contactId,
         "pricebookEntryId" => $pricebookEntryId
       ));
+    }
 
-  }
 
 
-  public function invokeMethod($class, $method, $params = array(), $orgName = null) {
 
-		// Specify org configurations.
-		$orgName = $orgName ?: self::DEFAULT_ORG_ALIAS;
-		$org = load_org($orgName);		
+
+
+		/**
+		 * Invoke any remote SOAP method.
+		 *
+		 *  We can invoke an Apex class and method using the class name 
+		 *   and method name.
+		 *
+		 * @return Object (anything).
+		 */
+		public function invokeMethodWithCredentials($class, $method, $params = array(), $credentials = null) {
+
+			list($orgWsdl, $clientWsdl, $username, $password, $token) = $credentials;
+
+			$sc = new SoapConnection($orgWsdl);
+			$client = $sc->login($username, $password, $token);
+			$client->load($clientWsdl);
+		
+		
+			return $client->execute($class, $method, $params);
+		}
+		
+
+    
+	public function invokeMethod($class, $method, $params = array(), $orgAlias = null) {
+
+
+		// Load an org configuration.
+		$orgAlias = null == $orgAlias ?  self::DEFAULT_ORG_ALIAS : $orgAlias;
+		$org = load_org($orgAlias);		
 		
 		// Discover WSDL files.
-		$orgWsdl = path_to_wsdl("enterprise", $orgName);
-		$clientWsdl = path_to_wsdl($class, $orgName);
-
-
-		$sc = new SoapConnection($orgWsdl);
-		$client = $sc->login($org["username"],$org["password"],$org["token"]);
-		$client->load($clientWsdl);
+		$orgWsdl = path_to_wsdl("enterprise", $orgAlias);
+		$clientWsdl = path_to_wsdl($class, $orgAlias);
 		
-		
-		return $client->execute($class, $method, $params);
+		return $this->invokeMethodWithCredentials($class, $method, $params, array(
+			$orgWsdl, $clientWsdl, $org["username"], $org["password"], $org["token"]
+		));
 	}
-    
-
-    
     
 
 

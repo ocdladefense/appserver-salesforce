@@ -44,7 +44,7 @@ class SoapConnection {
 
 		} catch (Exception $e) {
 			$ip = "52.whatever";//get_current_ip_address();
-			$message = $e->faultstring ." CHECK THAT YOUR IP ADDRESS {$ip} IS WHITELISTED.";
+			$message = $e->faultstring ." CHECK THAT YOUR IP ADDRESS {$ip} IS WHITELISTED ON THE Salesforce platform (Setup -> Network access.)";
 		
 			throw new Exception($message);
 		}
