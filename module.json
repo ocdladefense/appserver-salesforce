@@ -16,6 +16,10 @@
         "salesforce/order/create":{
             "callback":"generateOrderTest",
             "content-type":"text/html"
+        },
+        "salesforce/report/run":{
+            "callback":"testReport",
+            "content-type":"text/html"
         }
     }
 }
