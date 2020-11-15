@@ -4,7 +4,7 @@
 namespace Force;
 
 use \SoapClient as LibSoapClient;
-use \SoapHeader as SoapHeader;
+use \SoapHeader as LibSoapHeader;
 use \stdClass;
 
 
@@ -53,7 +53,7 @@ class SoapClient {
 
 		
 		// Prepare the client and header(s).
-		$header = new SoapHeader($namespace, "SessionHeader", array(
+		$header = new LibSoapHeader($namespace, "SessionHeader", array(
 			"sessionId" => $this->sessionId
 		));
 		$client->__setSoapHeaders(array($header));
