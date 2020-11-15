@@ -21,7 +21,7 @@
  **/
 
 
-use Force\SoapClient as SoapClient;
+// use Force\SoapClient as SoapClient;
 use Force\SoapConnection as SoapConnection;
 
 
@@ -95,7 +95,7 @@ class SalesforceModule extends Module {
 		 */
     public function generateOrder($contactId, $pricebookEntryId) {
 
-
+			
       return $this->invokeMethod("CustomOrder", "generateOrder", array(
         "customerId" => $contactId,
         "pricebookEntryId" => $pricebookEntryId
@@ -103,6 +103,42 @@ class SalesforceModule extends Module {
     }
 
 
+		public function testReport($reportName = "myReport") {
+		
+			$options = array(
+				'user_agent' => 'salesforce-toolkit-php/50',
+				'encoding' => 'utf-8',
+				'trace' => 1,
+				'features' => SOAP_SINGLE_ELEMENT_ARRAYS,
+				'compression' => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP,
+				'location' => 'https://login.salesforce.com/services/Soap/u/50.0',
+				// 'location' => 'https://iabc.my.salesforce.com/services/Soap/c/50.0/00Df2000000BUEo/0DF5x000000bntT',
+				'uri' => 'urn:partner.soap.sforce.com', //'http://soap.sforce.com/schemas/class/Reports'
+				// 'location' => 'https://iabc.my.salesforce.com/services/Soap/c/50.0/00Df2000000BUEo/0DF5x000000bntT',
+				// 'uri' => 'urn:enterprise.soap.sforce.com', //'http://soap.sforce.com/schemas/class/Reports'
+				'login' => 'jbernal@iabc.com',
+				'password' => 'brjcis12'
+			);
+		
+			/*
+			$client = new SoapClient(null, $options);
+			var_dump($client);
+			var_dump($client->__getLastRequest());
+			exit;
+			*/
+			$enterpriseWsdl 	= "/var/www/webapp/appserver/config/wsdl/iabc-production-enterprise.wsdl";
+			$clientWsdl 			= "/var/www/webapp/appserver/config/wsdl/iabc-production-Reports.wsdl";
+			$namespace = "http://soap.sforce.com/schemas/class/Reports";
+      $sessionId = "00Df2000000BUEo!ARYAQFpRt._py.xStgyoq3SE1Ex8iHT_fMUFivX1FbJO0P3e5VaKyJe.lSf4O3C2bhqXV5eAGogCmOBZMZWEpD9BGqTtVgMv";
+			$sessionHeader = new SoapHeader($namespace, 'SessionHeader', array (
+			 'sessionId' => $sessionId
+			));
+      $client = new SoapClient($clientWsdl);
+			$client->__setSoapHeaders($sessionHeader);
+      $resp = $client->run("foobar");
+      
+      return $resp->result;
+		}
 
 
 
@@ -119,11 +155,27 @@ class SalesforceModule extends Module {
 
 			list($orgWsdl, $clientWsdl, $username, $password, $token) = $credentials;
 
+
+			if(null != $orgWsdl && !file_exists($orgWsdl)) {
+				throw new Exception("Org WSDL file not found!");
+			}
+			
+			if(null != $clientWsdl && !file_exists($clientWsdl)) {
+				throw new Exception("Client WSDL file not found!");			
+			}
+
 			$sc = new SoapConnection($orgWsdl);
-			$client = $sc->login($username, $password, $token);
+
+			exit;
+			
+			
+			// $client = $sc->login($username, $password, $token);
+			
+
+			
 			$client->load($clientWsdl);
 		
-		
+
 			return $client->execute($class, $method, $params);
 		}
 		
