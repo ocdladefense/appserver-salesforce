@@ -8,6 +8,9 @@ config.js
 partner.wsdl.xml
 composer.lock
 
+login-community.xml
+login.xml
+
 #  But keep default settings.php and settings.js files
 #  config-default.php
 #  settings-default.php

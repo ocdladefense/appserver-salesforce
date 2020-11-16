@@ -1,0 +1,6 @@
+<?php
+
+
+$organizationId = "";
+$username = "";
+$password = "";
