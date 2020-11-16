@@ -9,8 +9,7 @@
         }
     ],
     "require": {
-        "composer/installers":"~1.0",
-				"clickpdx/libhttp": "dev-main"
+        "composer/installers":"~1.0"
     },
     "autoload": {
     	"classmap": [
