@@ -2,6 +2,12 @@
 /**
  * Example module for executing Apex using SOAP.
  *
+ * Example curl call:
+ *
+ *   curl https://login.salesforce.com/services/Soap/u/50.0 \
+ * 		-H "Content-Type: text/xml; charset=UTF-8" \
+ * 		-H "SOAPAction: login" -d @login-community.txt | xmllint --format -
+ *
  *
  *  Example usage:
  *    	require("developerforce/force.com-toolkit-for-php/*);
