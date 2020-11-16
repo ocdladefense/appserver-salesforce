@@ -1,6 +1,6 @@
 {
     "name": "ocdladefense/appserver-salesforce",
-    "description": "A module designed to handle interactions with a Salesforce customer database.  Uses \"oAuth\" authentication.",
+    "description": "A module designed to handle interactions with Salesforce.",
     "type": "wordpress-theme",
     "authors": [
         {
@@ -9,7 +9,13 @@
         }
     ],
     "require": {
-        "composer/installers":"~1.0",
-        "developerforce/force.com-toolkit-for-php":"v27.0.3"
+        "composer/installers":"~1.0"
+    },
+    "autoload": {
+    	"classmap": [
+    		"module.php",
+    		"src/SoapConnection.php",
+    		"src/SoapClient.php"
+    	]
     }
 }
