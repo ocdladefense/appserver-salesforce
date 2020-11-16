@@ -29,7 +29,9 @@ use Force\SoapConnection as SoapConnection;
 //  then create a class stub for Module.
 if(!class_exists("Module")) {
 
-	class Module {}
+	class Module {
+		public function __construct(){}
+	}
 }
 
 
