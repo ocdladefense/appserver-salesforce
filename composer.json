@@ -14,8 +14,10 @@
     },
     "autoload": {
     	"classmap": [
-    		"module.php",
     		"src/"
-    	]
+    	],
+        "files":[
+            "module.php"
+        ]
     }
 }
