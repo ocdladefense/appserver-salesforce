@@ -10,7 +10,7 @@
  *
  *
  *  Example usage:
- *    	require("../bootstrap.php");
+ *    	require("bootstrap.php");
  *
  *      $module = new SalesforceModule();
  *
@@ -55,6 +55,7 @@ class SalesforceModule extends Module {
 		 *  saved and further processed.
 		 */
     public function runReport($reportName) {
+  
     
     	$credentials = array(
     		"/path/to/client.wsdl",

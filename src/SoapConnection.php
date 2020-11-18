@@ -24,7 +24,7 @@ class SoapConnection {
 
 			$loginType = "admin"; //Other option is community login;
 
-			Curl::$LOG_FILE = "log/curl.log";
+
 
 
 			$config = array(

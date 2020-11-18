@@ -8,6 +8,9 @@ config.js
 partner.wsdl.xml
 composer.lock
 
+
+log/curl.log
+
 login.xml
 soap-login-community-user.xml
 soap-login-admin-user.xml

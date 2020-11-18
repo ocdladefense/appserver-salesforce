@@ -3,6 +3,9 @@
 	// Runs the composer autoloader.
 	require("../bootstrap.php");
 
+	// Uncomment below to enable logging.
+	// Curl::$LOG_FILE = "log/curl.log";
+			
 	$module = new SalesforceModule();
 	$out = $module->runReport("CurrentMembers");
 ?>
