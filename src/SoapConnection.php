@@ -7,83 +7,71 @@ use Http\HttpConstants;
 use Http\HttpHeader;	
 use Http\HttpRequest;
 use Http\Http;
-use Http\Curl;
-use \stdClass;
 
-
+//Change the wsdl extensions back to xml?
+//pass in the clientwsdl name?
+//remove configDir
 
 class SoapConnection {
 
 
 	private $req = null;
-	
-	
 
-	public function __construct() {
+	private $httpConfig;
 
 
-			$loginType = "admin"; //Other option is community login;
+	public function __construct($url) {
 
+		$this->httpConfig = array(
+			"returntransfer" => true,
+			"useragent" => "Mozilla/5.0",
+			"followlocation" => true,
+			"ssl_verifyhost" => false,
+			"ssl_verifypeer" => false
+		);
 
+		
+		$req = new HttpRequest($url);	
 
+		$req->addHeader(new HttpHeader("Content-Type", "text/xml; charset=UTF-8"));
+		$req->addHeader(new HttpHeader("SOAPAction", "login"));
+		$req->setMethod(\Http\HTTP_METHOD_POST);
 
-			$config = array(
-				"returntransfer" => true,
-				"useragent" => "Mozilla/5.0",
-				"followlocation" => true,
-				"ssl_verifyhost" => false,
-				"ssl_verifypeer" => false
-			);
-
-			$url = "https://login.salesforce.com/services/Soap/u/50.0";
-			$request = new HttpRequest($url);	
-
-			$request->addHeader(new HttpHeader("Content-Type", "text/xml; charset=UTF-8"));
-			$request->addHeader(new HttpHeader("SOAPAction", "login"));
-			
-			$pathToLogin = $loginType == "admin" ? $dir."/config/soap-login-admin-user.xml" : 
-				$dir."/config/soap-login-community-user.xml";
-
-			$request->setMethod(\Http\HTTP_METHOD_POST);
+		$this->req = $req;
 	}
 
 
 
-	
-	public function login($username = null, $password = null, $token = null) {
-		
+	//pass in path to login
+	//sc->login("","","",$pathToXml);
+	//sc->login($pathToXml);
+	//sc->login($pathToXml, $username, $password);
+	//sc->login($username)
+	//sc->login($clientWsdl, $namespace, $pathToXml);
+	public function login($login = null, $password = null, $token = null ) {
 
-		$load = file_get_contents($pathToLogin);
+		if($password !== null){
+
+			throw new Exception("LOGIN_ERROR: Function");
+		}
+
+		$load = file_get_contents($login);
 
 		if($load === false){
-			throw new Exception("NO_FILE_CONTENT: There is no file or content at {$pathToLogin}.");
+			throw new Exception("NO_FILE_CONTENT: There is no file or content at {$login}.");
 		}
-		$request->setBody($load);
+		
+		$this->req->setBody($load);
 
-		$http = new Http($config);
+		$http = new Http($this->httpConfig);
 
-		$resp = $http->send($request);
+		$resp = $http->send($this->req);
 
 		$xml = $resp->xml();
 
 		$sessionId = $xml->getElementsByTagName("sessionId")[0]->nodeValue;
 
-
-		$clientWsdl 	= "{$basePath}/config/wsdl/enterprise.wsdl";
-		$namespace 		= "http://soap.sforce.com/schemas/class/CustomOrder";
-
-		$sessionHeader = new SoapHeader($namespace, 'SessionHeader', array (
-			'sessionId' => $sessionId
-		));
-
-		$client = new SoapClient($clientWsdl);
-		$client->__setSoapHeaders($sessionHeader);
-
-
-		return $client;
+		return new \Salesforce\SoapClient($sessionId);
 	}
-
-
-
 
 }

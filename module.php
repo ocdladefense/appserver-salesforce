@@ -1,4 +1,6 @@
 <?php
+
+
 /**
  * Example module for executing Apex using SOAP.
  *
@@ -25,6 +27,8 @@
 
 
 
+use Salesforce\SoapConnection as SoapConnection;
+
 // If this file is used outside of its framework,
 //  then create a class stub for Module.
 if(!class_exists("Module")) {
@@ -38,7 +42,7 @@ if(!class_exists("Module")) {
 
 class SalesforceModule extends Module {
 
-		const DEFAULT_ORG_ALIAS = "myDefaultOrg";
+	const DEFAULT_ORG_ALIAS = "myDefaultOrg";
 
 
     public function __construct() {
@@ -46,16 +50,15 @@ class SalesforceModule extends Module {
     }
 
 
-		/**
-		 * Run an IABC report.
-		 *
-		 *  Execute a report on the IABC Salesforce instance.
-		 *  
-		 * @return - Returns a Blob or csv file, or array, that can be 
-		 *  saved and further processed.
-		 */
+	/**
+	 * Run an IABC report.
+	 *
+	 *  Execute a report on the IABC Salesforce instance.
+	 *  
+	 * @return - Returns a Blob or csv file, or array, that can be 
+	 *  saved and further processed.
+	 */
     public function runReport($reportName) {
-  
     
     	$credentials = array(
     		"/path/to/client.wsdl",
@@ -64,11 +67,11 @@ class SalesforceModule extends Module {
     		"myToken"
     	);
     	
-			$sc = new SoapConnection();
-			$client = $sc->login($username, $password);
-			
-			
-			return $client->runReport("CurrentMembers");
+		$sc = new SoapConnection();
+		$client = $sc->login($username, $password);
+		
+		
+		return $client->runReport("CurrentMembers");
     }
 
 
@@ -82,14 +85,21 @@ class SalesforceModule extends Module {
 		 */
     public function generateOrderTest(){
 
-      $contactId = "0031U00001WaiGcQAJ"; // Specific to your org!
-      $pricebookEntryId = "01u1U000001tWTwQAM"; // Specific to your org!
+		
 
-			$sc = new SoapConnection();
-			$client = $sc->login($username, $password);
-			
-			
-			return $client->generateOrder();
+		$loginType = "admin"; //Other option is community login;
+
+		$pathToLogin = $loginType == "admin" ? getPathToConfig() ."/wsdl/soap-login-admin-user.wsdl" : 
+			getPathToConfig() ."/wsdl/soap-login-community-user.wsdl";
+
+		$pathToWsdl = getPathToConfig() . "/wsdl/myDefaultOrg-CustomOrder.wsdl";
+	
+
+		$contactId = "0031U00001WaiGcQAJ"; // Specific to your org!
+		$pricebookEntryId = "01u1U000001tWTwQAM"; // Specific to your org!
+
+
+		return $this->generateOrder($pathToLogin, $pathToWsdl, $contactId, $pricebookEntryId);
   	}
   	
   	
@@ -103,14 +113,21 @@ class SalesforceModule extends Module {
 		 *
 		 *  @return String Order.OrderNumber
 		 */
-    public function generateOrder($contactId, $pricebookEntryId) {
+    public function generateOrder($pathToLogin, $pathToWsdl, $contactId, $pricebookEntryId) {
+		
+		$url = "https://login.salesforce.com/services/Soap/u/50.0";
 
-			
-      return $this->invokeMethod("CustomOrder", "generateOrder", array(
-        "customerId" => $contactId,
-        "pricebookEntryId" => $pricebookEntryId
-      ));
-    }
+		$params = array("customerId" => $contactId, "pricebookEntryId" => $pricebookEntryId);
+
+		$sc = new SoapConnection($url);
+
+		$client = $sc->login($pathToLogin);
+
+		$client->load($pathToWsdl);
+
+		return  $client->execute("CustomOrder", "generateOrder", $params);
+	}
+	
 
 
 

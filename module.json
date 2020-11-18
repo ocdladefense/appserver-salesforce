@@ -3,7 +3,7 @@
 	"name": "salesforce",
 	"comment": "Module definition file.",
 	"description": "Interact with Salesforce using WSDL.",
-	"files": ["SoapConnection.php","SoapClient.php"],
+	"files": ["SoapConnection.php"],
 	"routes": {
         "salesforce/invoke/%apexClass/%apexMethod":{
             "callback":"invokeMethod",

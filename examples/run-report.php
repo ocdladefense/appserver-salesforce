@@ -5,9 +5,18 @@
 
 	// Uncomment below to enable logging.
 	// Curl::$LOG_FILE = "log/curl.log";
+
+
+	$pathToLogin = "../config/soap-login-admin-user.wsdl";
+
+	$pathToWsdl = "../config/myDefaultOrg-CustomOrder.wsdl";
+
+
+	$contactId = "0031U00001WaiGcQAJ"; // Specific to your org!
+	$pricebookEntryId = "01u1U000001tWTwQAM"; // Specific to your org!
 			
 	$module = new SalesforceModule();
-	$out = $module->runReport("CurrentMembers");
+	$out = $module->generateOrder($pathToLogin, $pathToWsdl, $contactId, $pricebookEntryId); 
 ?>
 <!doctype html>
 <html>
