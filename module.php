@@ -6,14 +6,11 @@
  *
  *   curl https://login.salesforce.com/services/Soap/u/50.0 \
  * 		-H "Content-Type: text/xml; charset=UTF-8" \
- * 		-H "SOAPAction: login" -d @login-community.txt | xmllint --format -
+ * 		-H "SOAPAction: login" -d @soap-login-community-user.xml | xmllint --format -
  *
  *
  *  Example usage:
- *    	require("developerforce/force.com-toolkit-for-php/*);
- *			require("src/SoapClient.php");
- *			require("src/SoapConnection.php");
- *			require("module.php"); // this file.
+ *    	require("../bootstrap.php");
  *
  *      $module = new SalesforceModule();
  *
@@ -26,10 +23,6 @@
  *
  **/
 
-
-// use Force\SoapClient as SoapClient;
-use Force\SoapConnection as SoapConnection;
-use Http\HttpConstants as HttpConstants;
 
 
 // If this file is used outside of its framework,
@@ -45,7 +38,7 @@ if(!class_exists("Module")) {
 
 class SalesforceModule extends Module {
 
-	const DEFAULT_ORG_ALIAS = "myDefaultOrg";
+		const DEFAULT_ORG_ALIAS = "myDefaultOrg";
 
 
     public function __construct() {
@@ -64,14 +57,17 @@ class SalesforceModule extends Module {
     public function runReport($reportName) {
     
     	$credentials = array(
-    		"/path/to/enterprise-wsdl.wsdl",
-    		"/path/to/client-wsdl.wsdl",
+    		"/path/to/client.wsdl",
     		"myUsername",
     		"myPassword",
     		"myToken"
     	);
+    	
+			$sc = new SoapConnection();
+			$client = $sc->login($username, $password);
 			
-			return $this->invokeMethodWithCredentials("IABCReports","run",$reportName,$credentials);
+			
+			return $client->runReport("CurrentMembers");
     }
 
 
@@ -88,7 +84,11 @@ class SalesforceModule extends Module {
       $contactId = "0031U00001WaiGcQAJ"; // Specific to your org!
       $pricebookEntryId = "01u1U000001tWTwQAM"; // Specific to your org!
 
-      return $this->generateOrder($contactId, $pricebookEntryId);
+			$sc = new SoapConnection();
+			$client = $sc->login($username, $password);
+			
+			
+			return $client->generateOrder();
   	}
   	
   	
@@ -112,82 +112,48 @@ class SalesforceModule extends Module {
     }
 
 
-	public function testReport($sessionId, $reportName = "myReport") {
-
-		$basePath = $_SERVER['DOCUMENT_ROOT']; //I know you hate this line Jose.  
-	
-		$clientWsdl 	= "{$basePath}/config/wsdl/iabc-production-Reports.wsdl";
-		$namespace 		= "http://soap.sforce.com/schemas/class/Reports";
-		//$sessionId = "00Df2000000BUEo!ARYAQFpRt._py.xStgyoq3SE1Ex8iHT_fMUFivX1FbJO0P3e5VaKyJe.lSf4O3C2bhqXV5eAGogCmOBZMZWEpD9BGqTtVgMv";
-		$sessionHeader = new SoapHeader($namespace, 'SessionHeader', array (
-			'sessionId' => $sessionId
-		));
-
-		$client = new SoapClient($clientWsdl);
-		$client->__setSoapHeaders($sessionHeader);
-		$resp = $client->run("currentMembers");
-	
-		return $resp->result;
-	}
-
-
-	public function testOrder($sessionId) {
-
-		$basePath = $_SERVER['DOCUMENT_ROOT'];
-	
-		$clientWsdl 	= "{$basePath}/config/wsdl/enterprise.wsdl";
-		$namespace 		= "http://soap.sforce.com/schemas/class/CustomOrder";
-		//$sessionId = "00Df2000000BUEo!ARYAQFpRt._py.xStgyoq3SE1Ex8iHT_fMUFivX1FbJO0P3e5VaKyJe.lSf4O3C2bhqXV5eAGogCmOBZMZWEpD9BGqTtVgMv";
-		$sessionHeader = new SoapHeader($namespace, 'SessionHeader', array (
-			'sessionId' => $sessionId
-		));
-
-		$client = new SoapClient($clientWsdl);
-		$client->__setSoapHeaders($sessionHeader);
-		$resp = $client->GenerateOrder();
-	
-		return $resp->result;
-	}
 
 
 
 
-		/**
-		 * Invoke any remote SOAP method.
-		 *
-		 *  We can invoke an Apex class and method using the class name 
-		 *   and method name.
-		 *
-		 * @return Object (anything).
-		 */
-		public function invokeMethodWithCredentials($class, $method, $params = array(), $credentials = null) {
-
-			list($orgWsdl, $clientWsdl, $username, $password, $token) = $credentials;
 
 
-			if(null != $orgWsdl && !file_exists($orgWsdl)) {
-				throw new Exception("Org WSDL file not found!");
-			}
-			
-			if(null != $clientWsdl && !file_exists($clientWsdl)) {
-				throw new Exception("Client WSDL file not found!");			
-			}
 
-			$sc = new SoapConnection($orgWsdl);
+	/**
+	 * Invoke any remote SOAP method.
+	 *
+	 *  We can invoke an Apex class and method using the class name 
+	 *   and method name.
+	 *
+	 * @return Object (anything).
+	 */
+	public function invokeMethodWithCredentials($class, $method, $params = array(), $credentials = null) {
 
-			exit;
-			
-			
-			// $client = $sc->login($username, $password, $token);
-			
+		list($orgWsdl, $clientWsdl, $username, $password, $token) = $credentials;
 
-			
-			$client->load($clientWsdl);
-		
 
-			return $client->execute($class, $method, $params);
+		if(null != $orgWsdl && !file_exists($orgWsdl)) {
+			throw new Exception("Org WSDL file not found!");
 		}
 		
+		if(null != $clientWsdl && !file_exists($clientWsdl)) {
+			throw new Exception("Client WSDL file not found!");			
+		}
+
+		$sc = new SoapConnection();
+
+		try {
+			// Call the web service via post
+			$resp = $client->{$method}($params);
+			$result = $resp->result;
+		}
+		catch (Exception $e) {
+			global $errors; // todo probably remove this.
+			$errors = $e->faultstring;
+			$result = "Error attempting to call webservice {$class}:{$method}:{$errors}";
+		}
+	}
+	
 
     
 	public function invokeMethod($class, $method, $params = array(), $orgAlias = null) {
