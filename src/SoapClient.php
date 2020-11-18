@@ -1,6 +1,7 @@
 <?php
 
 namespace Salesforce;
+use SoapHeader;
 
 class SoapClient {
 
@@ -23,7 +24,7 @@ class SoapClient {
 			'sessionId' => $this->sessionId
 		));
 
-		$client = new SoapClient($this->wsdl);
+		$client = new \SoapClient($this->wsdl);
         $client->__setSoapHeaders($sessionHeader);
         
         $out = $client->$method($params);
