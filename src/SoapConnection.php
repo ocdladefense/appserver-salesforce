@@ -6,12 +6,7 @@ namespace Salesforce;
 use Http\HttpConstants;
 use Http\HttpHeader;	
 use Http\HttpRequest;
-use Http\HttpResponse;
 use Http\Http;
-use Http\Curl;
-use \stdClass;
-use SoapHeader;
-use SoapClient;
 
 //Change the wsdl extensions back to xml?
 //pass in the clientwsdl name?
@@ -77,6 +72,6 @@ class SoapConnection {
 		//throw an exception if no sessionId tagname;
 		$sessionId = $xml->getElementsByTagName("sessionId")[0]->nodeValue;
 
-		return new Salesforce\SoapClient($sessionId);
+		return new SoapClient($sessionId);
 	}
 }
