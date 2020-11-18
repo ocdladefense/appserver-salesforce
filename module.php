@@ -29,6 +29,7 @@
 
 // use Force\SoapClient as SoapClient;
 use Force\SoapConnection as SoapConnection;
+use Http\HttpConstants as HttpConstants;
 
 
 // If this file is used outside of its framework,
@@ -112,16 +113,38 @@ class SalesforceModule extends Module {
 
 
 	public function testReport($sessionId, $reportName = "myReport") {
+
+		$basePath = $_SERVER['DOCUMENT_ROOT']; //I know you hate this line Jose.  
 	
-		$clientWsdl 	= "/var/www/webapp/appserver/config/wsdl/iabc-production-Reports.wsdl";
+		$clientWsdl 	= "{$basePath}/config/wsdl/iabc-production-Reports.wsdl";
 		$namespace 		= "http://soap.sforce.com/schemas/class/Reports";
 		//$sessionId = "00Df2000000BUEo!ARYAQFpRt._py.xStgyoq3SE1Ex8iHT_fMUFivX1FbJO0P3e5VaKyJe.lSf4O3C2bhqXV5eAGogCmOBZMZWEpD9BGqTtVgMv";
 		$sessionHeader = new SoapHeader($namespace, 'SessionHeader', array (
 			'sessionId' => $sessionId
 		));
+
 		$client = new SoapClient($clientWsdl);
 		$client->__setSoapHeaders($sessionHeader);
 		$resp = $client->run("currentMembers");
+	
+		return $resp->result;
+	}
+
+
+	public function testOrder($sessionId) {
+
+		$basePath = $_SERVER['DOCUMENT_ROOT'];
+	
+		$clientWsdl 	= "{$basePath}/config/wsdl/enterprise.wsdl";
+		$namespace 		= "http://soap.sforce.com/schemas/class/CustomOrder";
+		//$sessionId = "00Df2000000BUEo!ARYAQFpRt._py.xStgyoq3SE1Ex8iHT_fMUFivX1FbJO0P3e5VaKyJe.lSf4O3C2bhqXV5eAGogCmOBZMZWEpD9BGqTtVgMv";
+		$sessionHeader = new SoapHeader($namespace, 'SessionHeader', array (
+			'sessionId' => $sessionId
+		));
+
+		$client = new SoapClient($clientWsdl);
+		$client->__setSoapHeaders($sessionHeader);
+		$resp = $client->GenerateOrder();
 	
 		return $resp->result;
 	}
