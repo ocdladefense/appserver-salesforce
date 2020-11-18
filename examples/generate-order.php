@@ -7,24 +7,26 @@
 	// Curl::$LOG_FILE = BASE_PATH . "/log/curl.log";
 
 
-	$pathToLogin = "../config/soap-login-community-user.xml";
+	$pathToLogin = "../config/soap-login-admin-user.xml";
 
-	$pathToWsdl = "../config/iabc-production-Reports.wsdl";
+	$pathToWsdl = "../config/myDefaultOrg-CustomOrder.wsdl";
 
 
 	// Uncomment if using generate order.
-	// $contactId = "0031U00001WaiGcQAJ"; // Specific to your org!
+	$contactId = "0031U00001WaiGcQAJ"; 
 	
 	// Uncomment if using generate order.
-	// $pricebookEntryId = "01u1U000001tWTwQAM"; // Specific to your org!
+	$pricebookEntryId = "01u1U000001tWTwQAM";
 			
+			
+	// Returns the OrderNumber of the newly-created Order.
 	$module = new SalesforceModule();
-	$out = $module->runReport($pathToLogin, $pathToWsdl, "CurrentMembers"); 
+	$out = $module->generateOrder($pathToLogin, $pathToWsdl, $contactId, $pricebookEntryId);
 ?>
 <!doctype html>
 <html>
 	<head>
-		<title>Reports</title>
+		<title>Order Creation</title>
 		<meta charset="utf-8" />
 	</head>
 	

@@ -4,8 +4,8 @@
     xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
   <env:Body>
     <n1:login xmlns:n1="urn:partner.soap.sforce.com">
-      <n1:username><?php print $username; ?></n1:username>
-      <n1:password><?php print $password; ?></n1:password>
+      <n1:username>Yourusername@example.com</n1:username>
+      <n1:password>Yourpassword</n1:password>
     </n1:login>
   </env:Body>
 </env:Envelope>
