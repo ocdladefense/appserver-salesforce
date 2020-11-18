@@ -58,20 +58,17 @@ class SalesforceModule extends Module {
 	 * @return - Returns a Blob or csv file, or array, that can be 
 	 *  saved and further processed.
 	 */
-    public function runReport($reportName) {
+    public function runReport($pathToLoginXml, $pathToWsdl, $reportName) {
     
-    	$credentials = array(
-    		"/path/to/client.wsdl",
-    		"myUsername",
-    		"myPassword",
-    		"myToken"
-    	);
-    	
-		$sc = new SoapConnection();
-		$client = $sc->login($username, $password);
-		
-		
-		return $client->runReport("CurrentMembers");
+			$url = "https://login.salesforce.com/services/Soap/u/50.0";
+
+			$sc = new SoapConnection($url);
+
+			$client = $sc->login($pathToLoginXml);
+
+			$client->load($pathToWsdl);
+
+			return  $client->execute("Reports", "run", array("reportName" => $reportName));
     }
 
 
@@ -87,19 +84,19 @@ class SalesforceModule extends Module {
 
 		
 
-		$loginType = "admin"; //Other option is community login;
+			$loginType = "admin"; //Other option is community login;
 
-		$pathToLogin = $loginType == "admin" ? getPathToConfig() ."/wsdl/soap-login-admin-user.wsdl" : 
-			getPathToConfig() ."/wsdl/soap-login-community-user.wsdl";
+			$pathToLogin = $loginType == "admin" ? getPathToConfig() ."/wsdl/soap-login-admin-user.wsdl" : 
+				getPathToConfig() ."/wsdl/soap-login-community-user.wsdl";
 
-		$pathToWsdl = getPathToConfig() . "/wsdl/myDefaultOrg-CustomOrder.wsdl";
+			$pathToWsdl = getPathToConfig() . "/wsdl/myDefaultOrg-CustomOrder.wsdl";
 	
 
-		$contactId = "0031U00001WaiGcQAJ"; // Specific to your org!
-		$pricebookEntryId = "01u1U000001tWTwQAM"; // Specific to your org!
+			$contactId = "0031U00001WaiGcQAJ"; // Specific to your org!
+			$pricebookEntryId = "01u1U000001tWTwQAM"; // Specific to your org!
 
 
-		return $this->generateOrder($pathToLogin, $pathToWsdl, $contactId, $pricebookEntryId);
+			return $this->generateOrder($pathToLogin, $pathToWsdl, $contactId, $pricebookEntryId);
   	}
   	
   	
@@ -115,17 +112,17 @@ class SalesforceModule extends Module {
 		 */
     public function generateOrder($pathToLogin, $pathToWsdl, $contactId, $pricebookEntryId) {
 		
-		$url = "https://login.salesforce.com/services/Soap/u/50.0";
+			$url = "https://login.salesforce.com/services/Soap/u/50.0";
 
-		$params = array("customerId" => $contactId, "pricebookEntryId" => $pricebookEntryId);
+			$params = array("customerId" => $contactId, "pricebookEntryId" => $pricebookEntryId);
 
-		$sc = new SoapConnection($url);
+			$sc = new SoapConnection($url);
 
-		$client = $sc->login($pathToLogin);
+			$client = $sc->login($pathToLogin);
 
-		$client->load($pathToWsdl);
+			$client->load($pathToWsdl);
 
-		return  $client->execute("CustomOrder", "generateOrder", $params);
+			return  $client->execute("CustomOrder", "generateOrder", $params);
 	}
 	
 
