@@ -69,7 +69,6 @@ class SoapConnection {
 
 		$xml = $resp->xml();
 
-		//throw an exception if no sessionId tagname;
 		$sessionId = $xml->getElementsByTagName("sessionId")[0]->nodeValue;
 
 		return new \Salesforce\SoapClient($sessionId);

@@ -6,6 +6,7 @@ settings.js
 config.php
 config.js
 partner.wsdl.xml
+
 composer.lock
 
 
@@ -14,6 +15,8 @@ log/curl.log
 login.xml
 soap-login-community-user.xml
 soap-login-admin-user.xml
+soap-login-community-user.wsdl
+soap-login-admin-user.wsdl
 
 #  But keep default settings.php and settings.js files
 #  config-default.php
