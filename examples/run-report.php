@@ -34,7 +34,7 @@
 		</header>
 	
 		<main>
-			<?php print $out; ?>
+			<?php print "<pre>" . print_r($out,true) . "</pre>"; ?>
 		</main>
 	
 		<footer>
