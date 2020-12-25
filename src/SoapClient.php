@@ -25,11 +25,11 @@ class SoapClient {
 			'sessionId' => $this->sessionId
 		));
 
-$stream_context = [
-    'http' => [
-        'content_type'  => 'text/xml;charset=utf-8',
-    ]
-];
+		$stream_context = [
+				'http' => [
+						'content_type'  => 'text/xml;charset=utf-8',
+				]
+		];
 
 			$options = array(
 				"stream_context" => $stream_context,
